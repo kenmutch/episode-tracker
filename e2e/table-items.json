@@ -1,0 +1,14 @@
+[
+    {
+        "username": "foo",
+        "showId": "show-b"
+    },
+    {
+        "username": "foo",
+        "showId": "show-a"
+    },
+    {
+        "username": "bar",
+        "showId": "show-a"
+    }
+]
