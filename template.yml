@@ -12,7 +12,8 @@ Outputs:
   EpisodeAvailabilityEventsTopic:
     Description: Notifications are posted here of any episodes newly discovered as available.
     Value: !Ref EpisodeAvailabliltyEventsTopic
-    Export: EpisodeAvailabliltyEventsTopic-export
+    Export: 
+      Name: EpisodeAvailabliltyEventsTopic-export
 
 Resources:
   EpisodeTracker:
