@@ -11,9 +11,9 @@ Parameters:
 Outputs:
   EpisodeAvailabilityEventsTopic:
     Description: Notifications are posted here of any episodes newly discovered as available.
-    Value: !Ref EpisodeAvailabliltyEventsTopic
+    Value: !Ref EpisodeAvailabilityEventsTopic
     Export: 
-      Name: EpisodeAvailabliltyEventsTopic-export
+      Name: EpisodeAvailabilityEventsTopic-export
 
 Resources:
   EpisodeTracker:
@@ -39,6 +39,7 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: rate (5 minutes)
+            
   EpisodeAvailabilityEventsTopic:
     Type: AWS::SNS::Topic
     Properties:
