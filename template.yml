@@ -19,7 +19,7 @@ Resources:
   EpisodeTracker:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/index.handler
+      Handler: src/episode-tracker/index.handler
       Runtime: nodejs8.10
       Timeout: 15
       Tracing: Active
@@ -27,6 +27,7 @@ Resources:
         Variables:
           NODE_ENV: production
           SHOW_SELECTIONS_TABLE_NAME: Fn::ImportValue ShowSelectionsTable-export
+          AVAILABLE_EPISODES_TABLE_NAME: episodes-dev
           EPISODE_AVAILABILITY_EVENTS_TOPIC_ARN: !Ref EpisodeAvailabilityEventsTopic
           APP_NAME: 'episode-tracker'
           LOG_LEVEL: INFO
@@ -39,9 +40,52 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: rate(1 day)
+  EpisodeCacheIndexer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/episode-cache-indexer/index.handler
+      Runtime: nodejs8.10
+      Timeout: 15
+      Tracing: Active
+      Environment:
+        Variables:
+          NODE_ENV: production
+          EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
+          APP_NAME: 'episode-cache-indexer'
+          LOG_LEVEL: INFO
+      Policies: 
+        - AmazonDynamoDBFullAccess
+        - AWSXrayWriteOnlyAccess
+        - AmazonSNSFullAccess
+      Events:
+        EpisodeCached:
+          Type: SNS
+          Properties:
+            Topic: arn:aws:sns:ap-southeast-2:828944938596:episode-cached-events
             
   EpisodeAvailabilityEventsTopic:
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: episode-availability-events
       TopicName: episode-availability-events
+
+  EpisodeCacheIndex:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: showSlug
+          AttributeType: S
+        -
+          AttributeName: episodeId
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: showSlug
+          KeyType: HASH
+        -
+          AttributeName: episodeId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 1
