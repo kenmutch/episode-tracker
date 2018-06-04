@@ -1,14 +1,14 @@
 [
     {
         "username": "foo",
-        "showId": "show-b"
+        "showSlug": "show-b"
     },
     {
         "username": "foo",
-        "showId": "show-a"
+        "showSlug": "show-a"
     },
     {
         "username": "bar",
-        "showId": "show-a"
+        "showSlug": "show-a"
     }
 ]

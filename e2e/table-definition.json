@@ -5,7 +5,7 @@
         "AttributeType": "S"
       },
       {
-        "AttributeName": "showId",
+        "AttributeName": "showSlug",
         "AttributeType": "S"
       }
     ],
@@ -15,7 +15,7 @@
         "KeyType": "HASH"
       },
       {
-        "AttributeName": "showId",
+        "AttributeName": "showSlug",
         "KeyType": "RANGE"
       }
     ],
