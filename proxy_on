@@ -1,0 +1,11 @@
+#! /bin/bash
+PROXY=http://10.0.2.2:3128
+echo "export http_proxy='$PROXY';"
+echo "export https_proxy='$PROXY';"
+echo "npm config set \"proxy\" \"$PROXY\";"
+echo "npm config set \"https-proxy\" \"$PROXY\";"
+echo "echo '[Service]
+Environment=\"HTTP_PROXY=http://10.0.2.2:3128/\"
+Environment=\"HTTPS_PROXY=http://10.0.2.2:3128/\"
+Environment=\"NO_PROXY=localhost,127.0.0.1,.in.telstra.com.au,.wg.dir.telstra.com,.corp.telstra.com\"' | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf"
+sudo systemctl daemon-reload && sudo service docker restart

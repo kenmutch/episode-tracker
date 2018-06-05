@@ -1,0 +1,10 @@
+#! /bin/bash
+
+echo "export http_proxy=;"
+echo "export HTTP_PROXY=;"
+echo "export https_proxy=;"
+echo "export HTTPS_PROXY=;"
+echo "npm config delete \"proxy\";"
+echo "npm config delete \"https-proxy\";"
+sudo rm /etc/systemd/system/docker.service.d/http-proxy.conf
+sudo systemctl daemon-reload && sudo service docker restart

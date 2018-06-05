@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # local test only
 export AWS_ACCESS_KEY_ID=$(grep -i "aws_access_key_id" ~/.aws/credentials | cut -d "=" -f 2)
 export AWS_SECRET_ACCESSKEY=$(grep -i "aws_secret_access_key" ~/.aws/credentials | cut -d "=" -f 2)
@@ -13,7 +13,7 @@ export AVAILABLE_EPISODES_BY_SHOW_SLUG_INDEX_NAME='episodes-by-show-slug-dev'
 export EPISODE_AVAILABILITY_EVENTS_TOPIC_ARN='arn:aws:sns:us-east-1:123456789012:episode-availablility-events'
 export LOG_LEVEL=debug
 
-if [[ ! -z $1 ]]; then
+if [ ! -z "$1" ]; then
     export LOG_LEVEL=$1
 fi
 
