@@ -22,8 +22,8 @@
         "unit.js": "2.0.0"
     },
     "scripts": {
-        "test": "./ci/unit-test.sh",
+        "test": "sh ./ci/unit-test.sh",
         "pre-commit": "npm test && npm run e2e:local",
-        "e2e:local": "./ci/e2e-local.sh"
+        "e2e:local": "sh ./ci/e2e-local.sh"
     }
 }
