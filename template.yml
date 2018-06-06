@@ -26,7 +26,8 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          SHOW_SELECTIONS_TABLE_NAME: Fn::ImportValue: ShowSelectionsTable-export
+          SHOW_SELECTIONS_TABLE_NAME: 
+            Fn::ImportValue: ShowSelectionsTable-export
           AVAILABLE_EPISODES_TABLE_NAME: episodes-dev
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
           EPISODE_AVAILABILITY_EVENTS_TOPIC_ARN: !Ref EpisodeAvailabilityEventsTopic

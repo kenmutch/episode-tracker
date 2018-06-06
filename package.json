@@ -23,7 +23,7 @@
     },
     "scripts": {
         "test": "sh ./ci/unit-test.sh",
-        "pre-commit": "npm test && npm run e2e:local",
+        "pre-commit": "sam validate && npm test && npm run e2e:local",
         "e2e:local": "sh ./ci/e2e-local.sh"
     }
 }
