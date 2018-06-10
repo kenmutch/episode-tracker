@@ -1,6 +1,7 @@
 "use strict";
 const AWSMock = require('aws-sdk-mock');
 const EpisodeTracker = require('../src/episode-tracker');
+const config = require('../src/episode-tracker/config');
 const should = require('should');
 const sinon = require('sinon');
 
@@ -26,15 +27,11 @@ describe('EpisodeTracker', () => {
         });
 
         beforeEach(() => {
-            const dynamodbStub = sinon.stub();
-            dynamodbStub.withArgs(sinon.match({
-                TableName:process.env.SHOW_SELECTIONS_TABLE_NAME
-            })).returns({
-                Items: []
-            });
-            const DB = AWSMock.mock('DynamoDB.DocumentClient', 'scan', (params, callback) => {
-                callback(null, dynamodbStub(params, callback));
-            });            
+
+            docClientMock('scan', [{
+                withArgs:{TableName: config.dynamodb.showSelectionsTableName},
+                returns:[]
+            }]);    
         });
 
         afterEach(() => {
@@ -43,7 +40,7 @@ describe('EpisodeTracker', () => {
         });
     });
 
-    describe('Given there are newly available episodes,', (done) => {
+    describe('Given there are newly available episodes not already downloaded,', (done) => {
 
         it('it should send a notification for each newly available episode', (done) => {
             const snsSpy = sinon.spy();
@@ -65,27 +62,24 @@ describe('EpisodeTracker', () => {
         });
 
         beforeEach(() => {
-            const showSelectionsTableStub = sinon.stub();
-            showSelectionsTableStub.withArgs(sinon.match({
-                TableName:process.env.SHOW_SELECTIONS_TABLE_NAME
-            })).returns({
-                Items: [
+
+            docClientMock('scan', [{
+                withArgs: {TableName: config.dynamodb.showSelectionsTableName},
+                returns: [
                     {showSlug: 'show-a'},
                     {showSlug: 'show-b'}
                 ]
-            });
-            const episodesByShowSlugIndexStub = sinon.stub();
-            episodesByShowSlugIndexStub.returns({
-                Items: [
-                    {id:'foo', showSlug: 'show-a'}
-                ]
-            });
-            AWSMock.mock('DynamoDB.DocumentClient', 'scan', (params, callback) => {
-                callback(null, showSelectionsTableStub(params, callback));
-            });    
-            AWSMock.mock('DynamoDB.DocumentClient', 'query', (params, callback) => {
-                callback(null, episodesByShowSlugIndexStub(params, callback));
-            });       
+            }]);
+
+            docClientMock('query', [{
+                    withArgs: {TableName: config.dynamodb.episodesTableName},
+                    returns: [
+                        {id:'foo', showSlug: 'show-a'}
+                    ]
+                },{
+                    withArgs: {TableName: config.dynamodb.episodeCacheIndexTableName},
+                    returns: []
+                }]);       
         });
 
         afterEach(() => {
@@ -93,6 +87,55 @@ describe('EpisodeTracker', () => {
             sinon.reset();
         });
     });
+
+    describe('Given there was an available episode that was already downloaded', (done) => {
+
+        it('it should not send a notification', (done) => {
+            const snsSpy = sinon.spy();
+            const SNS = AWSMock.mock('SNS', 'publish', (params, callback) => {
+                snsSpy(params, callback);
+                callback(undefined, {});
+            });
+            
+            EpisodeTracker.handler("fake event", "fake context", (err, data) => {
+                if(err) {
+                    done(err);
+                } 
+                else {
+                    sinon.assert.notCalled(snsSpy);
+                    AWSMock.restore('SNS', 'publish');
+                    done();
+                }
+            });
+        });
+
+        beforeEach(() => {
+            docClientMock('scan', [{
+                withArgs: {TableName: config.dynamodb.showSelectionsTableName},
+                returns: [
+                    {showSlug: 'show-a'},
+                    {showSlug: 'show-b'}
+                ]
+            }]);
+
+            docClientMock('query', [{
+                    withArgs: {TableName: config.dynamodb.episodesTableName},
+                    returns: [
+                        {id:'foo', showSlug: 'show-a'}
+                    ]
+                },{
+                    withArgs: {TableName: config.dynamodb.episodeCacheIndexTableName},
+                    returns: [
+                        {showSlug: 'show-a', episodeId: 'foo'}
+                    ]
+                }]);
+        });
+
+        afterEach(() => {
+            AWSMock.restore('DynamoDB.DocumentClient');
+            sinon.reset();
+        });
+    })
 
     describe('Given a there was an episode with id of \'foo\' available for a show with slug \'show-a\'', () => {
 
@@ -156,25 +199,25 @@ describe('EpisodeTracker', () => {
         });
 
         beforeEach(() => {
-            const selectedShowsStub = sinon.stub();
-            selectedShowsStub.withArgs(sinon.match({
+            const docClientScanStub = sinon.stub();
+            docClientScanStub.withArgs(sinon.match({
                 TableName:process.env.SHOW_SELECTIONS_TABLE_NAME
             })).returns({
                 Items: [
                     {showSlug: 'show-a'}
                 ]
             });
-            const episodesByShowSlugIndexStub = sinon.stub();
-            episodesByShowSlugIndexStub.returns({
+            const docClientQueryStub = sinon.stub();
+            docClientQueryStub.returns({
                 Items: [
                     {id:'foo', showSlug: 'show-a'}
                 ]
             })
             AWSMock.mock('DynamoDB.DocumentClient', 'scan', (params, callback) => {
-                callback(null, selectedShowsStub(params, callback));
+                callback(null, docClientScanStub(params, callback));
             });
             AWSMock.mock('DynamoDB.DocumentClient', 'query', (params, callback) => {
-                callback(null, episodesByShowSlugIndexStub(params, callback));
+                callback(null, docClientQueryStub(params, callback));
             })                      
         });
 
@@ -184,3 +227,20 @@ describe('EpisodeTracker', () => {
         });
     });
 });
+
+function docClientMock(method, criteria) {
+    AWSMock.mock('DynamoDB.DocumentClient', method, (params, callback) => {
+        const stub = setupStub(criteria);
+        callback(null, stub(params, callback));
+    });
+}
+
+function setupStub(criteria) {
+    const stub = sinon.stub();
+    criteria.forEach((criterion) => {
+        stub.withArgs(sinon.match(criterion.withArgs)).returns({
+            Items: criterion.returns
+        });
+    });
+    return stub;
+}
