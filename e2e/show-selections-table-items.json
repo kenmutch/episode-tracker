@@ -1,0 +1,14 @@
+[
+    {
+        "username": "foo",
+        "showSlug": "show-b"
+    },
+    {
+        "username": "foo",
+        "showSlug": "show-a"
+    },
+    {
+        "username": "bar",
+        "showSlug": "show-a"
+    }
+]

@@ -29,17 +29,17 @@ should.Assertion.add('theEqualSetOf', function (other) {   //must use 'function'
     other.should.containDeep(this.obj);
 });
 
-describe('Episode tracker', () => {
+xdescribe('Episode tracker', () => {
     const episodeTracker = require('../src/episode-tracker/index');
     const tableName = process.env.SHOW_SELECTIONS_TABLE_NAME;
 
     const tableDefinition = loadFromTemplate(
-        path.resolve(__dirname, 'table-definition.json'), 
+        path.resolve(__dirname, 'show-selections-table-definition.json'), 
         {tableName:tableName}
     );
 
     const scheduledEvent = require('./scheduled-event.json');
-    const items = require('./table-items.json');
+    const items = require('./show-selections-table-items.json');
 
     before(function() {
         this.timeout(15000);
