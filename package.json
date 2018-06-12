@@ -13,6 +13,7 @@
         "proxy-agent": "^3.0.0"
     },
     "devDependencies": {
+        "aws-sam-local": "^0.2.11",
         "aws-sdk-mock": "^2.0.0",
         "fs-extra": "^6.0.1",
         "json-templates": "^2.0.0",
