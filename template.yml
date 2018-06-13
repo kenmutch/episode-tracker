@@ -26,14 +26,14 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          SHOW_SELECTIONS_TABLE_NAME: 
-            Fn::ImportValue: ShowSelectionsTable-export
+          SHOW_SELECTIONS_TABLE_NAME: tmp
+            #Fn::ImportValue: ShowSelectionsTable-export
           AVAILABLE_EPISODES_TABLE_NAME: episodes-dev
           AVAILABLE_EPISODES_BY_SHOW_SLUG_INDEX_NAME: episodes-by-show-slug-dev
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
           EPISODE_AVAILABILITY_EVENTS_TOPIC_ARN: !Ref EpisodeAvailabilityEventsTopic
           APP_NAME: 'episode-tracker'
-          LOG_LEVEL: INFO
+          LOG_LEVEL: DEBUG
       Policies: 
         - AmazonDynamoDBFullAccess
         - AWSXrayWriteOnlyAccess
