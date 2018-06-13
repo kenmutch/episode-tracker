@@ -23,6 +23,7 @@ module.exports = function(options, logger) {
             ProjectionExpression: 'showSlug'
         };
         
+        logger.debug('scan params', params);
         return docClient.scan(params).promise()
             .then((data) => {
                 logger.debug('scan data', data);

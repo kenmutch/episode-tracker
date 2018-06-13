@@ -27,7 +27,7 @@ Resources:
         Variables:
           NODE_ENV: production
           SHOW_SELECTIONS_TABLE_NAME: 
-            Fn::ImportValue: ShowSelectionsTable-export
+            Fn::ImportValue: ShowSelectionsTable-prod-export
           AVAILABLE_EPISODES_TABLE_NAME: episodes-dev
           AVAILABLE_EPISODES_BY_SHOW_SLUG_INDEX_NAME: episodes-by-show-slug-dev
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
@@ -55,7 +55,7 @@ Resources:
           NODE_ENV: production
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
           APP_NAME: 'episode-cache-indexer'
-          LOG_LEVEL: INFO
+          LOG_LEVEL: DEBUG
       Policies: 
         - AmazonDynamoDBFullAccess
         - AWSXrayWriteOnlyAccess
