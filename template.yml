@@ -7,6 +7,9 @@ Parameters:
   ProjectId:
     Type: String
     Description: AWS CodeStar projectID used to associate new resources to team members
+  Stage:
+    Type: String
+    Description: The stage
 
 Outputs:
   EpisodeAvailabilityEventsTopic:
@@ -26,8 +29,8 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          SHOW_SELECTIONS_TABLE_NAME: tmp
-            #Fn::ImportValue: ShowSelectionsTable-export
+          SHOW_SELECTIONS_TABLE_NAME: 
+            Fn::ImportValue: !Sub 'ShowSelectionsTable-${Stage}-export'
           AVAILABLE_EPISODES_TABLE_NAME: episodes-dev
           AVAILABLE_EPISODES_BY_SHOW_SLUG_INDEX_NAME: episodes-by-show-slug-dev
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
@@ -46,6 +49,7 @@ Resources:
   EpisodeCacheIndexer:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub 'episode-cache-indexer-${Stage}'
       Handler: src/episode-cache-indexer/index.handler
       Runtime: nodejs8.10
       Timeout: 15
@@ -54,7 +58,7 @@ Resources:
         Variables:
           NODE_ENV: production
           EPISODE_INDEX_CACHE_TABLE_NAME: !Ref EpisodeCacheIndex
-          APP_NAME: 'episode-cache-indexer'
+          APP_NAME: !Sub 'episode-cache-indexer-${Stage}'
           LOG_LEVEL: DEBUG
       Policies: 
         - AmazonDynamoDBFullAccess
@@ -69,12 +73,13 @@ Resources:
   EpisodeAvailabilityEventsTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: episode-availability-events
-      TopicName: episode-availability-events
+      DisplayName: !Sub 'episode-availability-events-${Stage}'
+      TopicName: !Sub 'episode-availability-events-${Stage}'
 
   EpisodeCacheIndex:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: !Sub 'episode-cache-index-${Stage}'
       AttributeDefinitions:
         -
           AttributeName: showSlug
